@@ -1,10 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# ## 1. import
-
-# In[1]:
-
+## 1. import
 
 import math
 import time
@@ -23,10 +18,7 @@ from torch.optim.lr_scheduler import LambdaLR
 device = torch.device('cuda:0' if torch.cuda.is_available else 'cpu')
 
 
-# ## 2. prepreocessing
-
-# In[6]:
-
+## 2. prepreocessing
 
 # 모델 훈련시, 검증을 위해 train 중 10000개를 validation용도로 분리
 # 새로 만든 train.csv는 train1.csv
@@ -49,10 +41,6 @@ val = train.iloc[rows - 10000:, :]
 val = val.values
 val = pd.DataFrame(data = val, columns = layers)
 val.to_csv('val.csv', index_label = 'id')
-
-
-# In[2]:
-
 
 # 새로 만든 train, val load
 # parameter 설정
@@ -90,10 +78,7 @@ val_dataset = PandasDataset(val_path)
 val_loader = DataLoader(val_dataset, batch_size=batch_size,  num_workers=4)
 
 
-# ## 3. modeling
-
-# In[ ]:
-
+## 3. modeling
 
 """
 Modeling
@@ -118,9 +103,6 @@ MLP Model : 단순한 MLP 모델로는 한계를 느껴 MLP의 복잡성을 증�
         (1) 노드 수를 증가시켰다 줄이는 방식(UP-block, DOWN-block)
         (2) Down-block에서 skip connection과 layer norm 적용
 """
-
-
-# In[4]:
 
 
 class GELU(nn.Module):
@@ -333,16 +315,10 @@ class AdamW(Optimizer):
                     p.data.add_(-group["lr"] * group["weight_decay"], p.data)
 
         return loss
-
-
-# In[5]:
-
+    
 
 model = skipConnectionModel()
 model = model.to(device)
-
-
-# In[ ]:
 
 
 # 모델 학습
@@ -425,9 +401,6 @@ for epoch in range(epochs):
 
 # ## 4. test
 
-# In[ ]:
-
-
 test_model = skipConnectionModel()
 
 # test 파일 경로 및 test 데이터 로드
@@ -468,4 +441,3 @@ submission = sample_sub.values + pred_test.cpu().numpy()
 
 submission = pd.DataFrame(data=submission,columns=layers)
 submission.to_csv(f'test_{version}_{lr}_{epochs}.csv', index_label='id')
-
